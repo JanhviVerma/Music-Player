@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Melodify - Your Personal Music Player</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Melodify</h1>
+        </header>
+        <main>
+            <div id="player">
+                <div id="album-art">
+                    <img src="placeholder-album-art.jpg" alt="Album Art">
+                </div>
+                <div id="track-info">
+                    <h2 id="track-title">Track Title</h2>
+                    <p id="artist">Artist Name</p>
+                </div>
+                <div id="controls">
+                    <button id="prev">Previous</button>
+                    <button id="play-pause">Play</button>
+                    <button id="next">Next</button>
+                </div>
+                <div id="progress-bar">
+                    <div id="progress"></div>
+                </div>
+                <div id="time-info">
+                    <span id="current-time">0:00</span>
+                    <span id="total-time">0:00</span>
+                </div>
+            </div>
+            <div id="playlist">
+                <h3>Playlist</h3>
+                <ul id="track-list">
+                    <!-- Tracks will be dynamically added here -->
+                </ul>
+            </div>
+        </main>
+        <footer>
+            <p>&copy; 2024 Melodify. All rights reserved.</p>
+        </footer>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
