@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Melodify - Your Personal Music Player</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 </head>
 <body>
     <div class="container">
@@ -21,16 +22,23 @@
                     <p id="artist">Artist Name</p>
                 </div>
                 <div id="controls">
-                    <button id="prev">Previous</button>
-                    <button id="play-pause">Play</button>
-                    <button id="next">Next</button>
+                    <button id="prev"><i class="fas fa-step-backward"></i></button>
+                    <button id="play-pause"><i class="fas fa-play"></i></button>
+                    <button id="next"><i class="fas fa-step-forward"></i></button>
                 </div>
-                <div id="progress-bar">
-                    <div id="progress"></div>
+                <div id="progress-container">
+                    <div id="progress-bar">
+                        <div id="progress"></div>
+                    </div>
+                    <div id="time-info">
+                        <span id="current-time">0:00</span>
+                        <span id="total-time">0:00</span>
+                    </div>
                 </div>
-                <div id="time-info">
-                    <span id="current-time">0:00</span>
-                    <span id="total-time">0:00</span>
+                <div id="volume-control">
+                    <i class="fas fa-volume-down"></i>
+                    <input type="range" id="volume-slider" min="0" max="100" value="100">
+                    <i class="fas fa-volume-up"></i>
                 </div>
             </div>
             <div id="playlist">
