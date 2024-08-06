@@ -12,12 +12,16 @@ const MusicPlayer = {
         { title: "Sample Track 2", artist: "Artist 2", file: "track2.mp3" },
         { title: "Sample Track 3", artist: "Artist 3", file: "track3.mp3" }
     ],
+    recentTracks: [],
+    playlists: {},
+    currentPlaylist: null,
 
     init() {
         this.cacheDom();
         this.bindEvents();
         this.loadTrack();
         this.updatePlaylist();
+        this.updateRecentTracks();
         this.updateTrackDuration();
     },
 
@@ -36,6 +40,7 @@ const MusicPlayer = {
         this.currentTimeElement = document.getElementById('current-time');
         this.totalTimeElement = document.getElementById('total-time');
         this.volumeSlider = document.getElementById('volume-slider');
+        this.volumeLevel = document.getElementById('volume-level');
         this.trackList = document.getElementById('track-list');
         this.fileUpload = document.getElementById('file-upload');
         this.uploadBtn = document.getElementById('upload-btn');
@@ -43,6 +48,10 @@ const MusicPlayer = {
         this.searchInput = document.getElementById('search');
         this.speedSlider = document.getElementById('speed-slider');
         this.speedValue = document.getElementById('speed-value');
+        this.equalizerButtons = document.querySelectorAll('.eq-btn');
+        this.recentList = document.getElementById('recent-list');
+        this.createPlaylistBtn = document.getElementById('create-playlist');
+        this.playlistsContainer = document.getElementById('playlists');
     },
 
     bindEvents() {
@@ -59,6 +68,10 @@ const MusicPlayer = {
         this.audio.addEventListener('timeupdate', () => this.updateProgress());
         this.searchInput.addEventListener('input', () => this.filterTracks());
         this.speedSlider.addEventListener('input', () => this.setPlaybackSpeed());
+        this.equalizerButtons.forEach(btn => btn.addEventListener('click', (e) => this.setEqualizer(e.target.dataset.mode)));
+        this.createPlaylistBtn.addEventListener('click', () => this.createPlaylist());
+        this.progressBar.addEventListener('mousemove', (e) => this.showTooltip(e));
+        this.progressBar.addEventListener('mouseleave', () => this.hideTooltip());
     },
 
     loadTrack() {
@@ -137,6 +150,7 @@ const MusicPlayer = {
 
     setVolume(volume) {
         this.audio.volume = volume / 100;
+        this.volumeLevel.textContent = `${volume}%`;
         if (!this.isMuted) {
             console.log(`Volume set to ${volume}`);
         }
@@ -149,6 +163,11 @@ const MusicPlayer = {
         console.log(`Playback speed set to ${speed}x`);
     },
 
+    setEqualizer(mode) {
+        // Implement equalizer modes here
+        console.log(`Equalizer mode set to ${mode}`);
+    },
+
     uploadTracks() {
         const files = this.fileUpload.files;
         Array.from(files).forEach(file => {
@@ -158,10 +177,9 @@ const MusicPlayer = {
                 file: URL.createObjectURL(file)
             };
             this.tracks.push(track);
+            this.updatePlaylist();
+            this.showNotification(`Uploaded: ${file.name}`);
         });
-        this.updatePlaylist();
-        this.showNotification(`${files.length} track(s) uploaded.`);
-        console.log(`${files.length} track(s) uploaded.`);
     },
 
     updatePlaylist() {
@@ -181,10 +199,45 @@ const MusicPlayer = {
         });
     },
 
-    updateProgress() {
-        const currentTime = Math.floor(this.audio.currentTime);
-        this.progressBar.style.width = `${(currentTime / this.audio.duration) * 100}%`;
-        this.currentTimeElement.textContent = `${Math.floor(currentTime / 60)}:${String(currentTime % 60).padStart(2, '0')}`;
+    updateRecentTracks() {
+        this.recentList.innerHTML = '';
+        this.recentTracks.forEach(track => {
+            const li = document.createElement('li');
+            li.textContent = `${track.title} - ${track.artist}`;
+            this.recentList.appendChild(li);
+        });
+    },
+
+    createPlaylist() {
+        const name = prompt('Enter playlist name:');
+        if (name) {
+            const playlist = document.createElement('div');
+            playlist.classList.add('playlist');
+            playlist.innerHTML = `<h4>${name}</h4><ul></ul>`;
+            this.playlists[name] = [];
+            this.playlistsContainer.appendChild(playlist);
+            console.log(`Created playlist: ${name}`);
+        }
+    },
+
+    showTooltip(e) {
+        const rect = this.progressBar.getBoundingClientRect();
+        const offsetX = e.clientX - rect.left;
+        const duration = this.audio.duration;
+        const tooltip = document.getElementById('duration-tooltip');
+        tooltip.textContent = this.formatTime((offsetX / rect.width) * duration);
+        tooltip.style.left = `${offsetX}px`;
+        tooltip.style.display = 'block';
+    },
+
+    hideTooltip() {
+        document.getElementById('duration-tooltip').style.display = 'none';
+    },
+
+    formatTime(seconds) {
+        const mins = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return `${mins}:${String(secs).padStart(2, '0')}`;
     },
 
     handleTrackEnd() {
@@ -199,11 +252,17 @@ const MusicPlayer = {
         }
     },
 
+    updateProgress() {
+        const progress = (this.audio.currentTime / this.audio.duration) * 100;
+        this.progressBar.style.width = `${progress}%`;
+        this.currentTimeElement.textContent = this.formatTime(this.audio.currentTime);
+    },
+
     filterTracks() {
-        const query = this.searchInput.value.toLowerCase();
+        const searchTerm = this.searchInput.value.toLowerCase();
         Array.from(this.trackList.children).forEach(li => {
             const text = li.textContent.toLowerCase();
-            li.style.display = text.includes(query) ? '' : 'none';
+            li.style.display = text.includes(searchTerm) ? 'block' : 'none';
         });
     },
 

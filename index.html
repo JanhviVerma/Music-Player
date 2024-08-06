@@ -38,16 +38,24 @@
                         <span id="current-time">0:00</span>
                         <span id="total-time">0:00</span>
                     </div>
+                    <div id="duration-tooltip">0:00</div>
                 </div>
                 <div id="volume-control">
                     <i class="fas fa-volume-down"></i>
                     <input type="range" id="volume-slider" min="0" max="100" value="100">
                     <i class="fas fa-volume-up"></i>
+                    <span id="volume-level">100%</span>
                 </div>
                 <div id="speed-control">
                     <label for="speed-slider">Speed:</label>
                     <input type="range" id="speed-slider" min="0.5" max="2" step="0.1" value="1">
                     <span id="speed-value">1x</span>
+                </div>
+                <div id="equalizer">
+                    <h3>Equalizer</h3>
+                    <button class="eq-btn" data-mode="normal">Normal</button>
+                    <button class="eq-btn" data-mode="bass">Bass</button>
+                    <button class="eq-btn" data-mode="treble">Treble</button>
                 </div>
             </div>
             <div id="playlist">
@@ -55,6 +63,16 @@
                 <input type="text" id="search" placeholder="Search tracks...">
                 <ul id="track-list">
                     <!-- Tracks will be dynamically added here -->
+                </ul>
+                <button id="create-playlist">Create Playlist</button>
+                <div id="playlists">
+                    <!-- Playlists will be dynamically added here -->
+                </div>
+            </div>
+            <div id="recent-tracks">
+                <h3>Recent Tracks</h3>
+                <ul id="recent-list">
+                    <!-- Recent tracks will be dynamically added here -->
                 </ul>
             </div>
         </main>
