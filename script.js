@@ -10,12 +10,14 @@ const MusicPlayer = {
         { title: "Sample Track 2", artist: "Artist 2", file: "track2.mp3" },
         { title: "Sample Track 3", artist: "Artist 3", file: "track3.mp3" }
     ],
+    audio: new Audio(),
 
     init() {
         this.cacheDom();
         this.bindEvents();
         this.loadTrack();
         this.updatePlaylist();
+        this.updateTrackDuration();
     },
 
     cacheDom() {
@@ -35,6 +37,7 @@ const MusicPlayer = {
         this.trackList = document.getElementById('track-list');
         this.fileUpload = document.getElementById('file-upload');
         this.uploadBtn = document.getElementById('upload-btn');
+        this.notification = document.querySelector('.notification');
     },
 
     bindEvents() {
@@ -46,22 +49,35 @@ const MusicPlayer = {
         this.muteBtn.addEventListener('click', () => this.toggleMute());
         this.volumeSlider.addEventListener('input', (e) => this.setVolume(e.target.value));
         this.uploadBtn.addEventListener('click', () => this.uploadTracks());
+        this.audio.addEventListener('ended', () => this.handleTrackEnd());
+        this.audio.addEventListener('timeupdate', () => this.updateProgress());
     },
 
     loadTrack() {
         const track = this.tracks[this.currentTrack];
         this.trackTitle.textContent = track.title;
         this.artistName.textContent = track.artist;
-        // In a real scenario, we would load the audio file here
+        this.audio.src = track.file;
         console.log(`Loading track: ${track.file}`);
+        this.audio.load();
+        this.updateTrackDuration();
+    },
+
+    updateTrackDuration() {
+        this.audio.addEventListener('loadedmetadata', () => {
+            const totalTime = Math.floor(this.audio.duration);
+            this.totalTimeElement.textContent = `${Math.floor(totalTime / 60)}:${String(totalTime % 60).padStart(2, '0')}`;
+        });
     },
 
     togglePlayPause() {
         this.isPlaying = !this.isPlaying;
         if (this.isPlaying) {
+            this.audio.play();
             this.playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
             console.log('Playing track');
         } else {
+            this.audio.pause();
             this.playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
             console.log('Pausing track');
         }
@@ -71,6 +87,7 @@ const MusicPlayer = {
         this.currentTrack = (this.currentTrack - 1 + this.tracks.length) % this.tracks.length;
         this.loadTrack();
         if (this.isPlaying) {
+            this.audio.play();
             console.log('Playing previous track');
         }
     },
@@ -79,6 +96,7 @@ const MusicPlayer = {
         this.currentTrack = (this.currentTrack + 1) % this.tracks.length;
         this.loadTrack();
         if (this.isPlaying) {
+            this.audio.play();
             console.log('Playing next track');
         }
     },
@@ -103,6 +121,7 @@ const MusicPlayer = {
     },
 
     setVolume(volume) {
+        this.audio.volume = volume / 100;
         if (!this.isMuted) {
             console.log(`Volume set to ${volume}`);
         }
@@ -119,6 +138,7 @@ const MusicPlayer = {
             this.tracks.push(track);
         });
         this.updatePlaylist();
+        this.showNotification(`${files.length} track(s) uploaded.`);
         console.log(`${files.length} track(s) uploaded.`);
     },
 
@@ -131,11 +151,36 @@ const MusicPlayer = {
                 this.currentTrack = index;
                 this.loadTrack();
                 if (this.isPlaying) {
+                    this.audio.play();
                     console.log('Playing selected track');
                 }
             });
             this.trackList.appendChild(li);
         });
+    },
+
+    updateProgress() {
+        const currentTime = Math.floor(this.audio.currentTime);
+        this.progressBar.style.width = `${(currentTime / this.audio.duration) * 100}%`;
+        this.currentTimeElement.textContent = `${Math.floor(currentTime / 60)}:${String(currentTime % 60).padStart(2, '0')}`;
+    },
+
+    handleTrackEnd() {
+        if (this.isRepeat) {
+            this.audio.play();
+        } else if (this.isShuffle) {
+            this.currentTrack = Math.floor(Math.random() * this.tracks.length);
+            this.loadTrack();
+            this.audio.play();
+        } else {
+            this.playNextTrack();
+        }
+    },
+
+    showNotification(message) {
+        this.notification.textContent = message;
+        this.notification.style.display = 'block';
+        setTimeout(() => this.notification.style.display = 'none', 3000);
     }
 };
 
