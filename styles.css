@@ -154,6 +154,23 @@ button:active {
     border-bottom: none;
 }
 
+#upload-section {
+    margin-top: 30px;
+    background-color: #fff;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+#upload-section h3 {
+    margin-bottom: 15px;
+}
+
+#file-upload {
+    margin-bottom: 10px;
+}
+
 footer {
     text-align: center;
     margin-top: 30px;

@@ -33,6 +33,8 @@ const MusicPlayer = {
         this.totalTimeElement = document.getElementById('total-time');
         this.volumeSlider = document.getElementById('volume-slider');
         this.trackList = document.getElementById('track-list');
+        this.fileUpload = document.getElementById('file-upload');
+        this.uploadBtn = document.getElementById('upload-btn');
     },
 
     bindEvents() {
@@ -43,7 +45,7 @@ const MusicPlayer = {
         this.repeatBtn.addEventListener('click', () => this.toggleRepeat());
         this.muteBtn.addEventListener('click', () => this.toggleMute());
         this.volumeSlider.addEventListener('input', (e) => this.setVolume(e.target.value));
-        // More event listeners will be added in future commits
+        this.uploadBtn.addEventListener('click', () => this.uploadTracks());
     },
 
     loadTrack() {
@@ -104,6 +106,20 @@ const MusicPlayer = {
         if (!this.isMuted) {
             console.log(`Volume set to ${volume}`);
         }
+    },
+
+    uploadTracks() {
+        const files = this.fileUpload.files;
+        Array.from(files).forEach(file => {
+            const track = {
+                title: file.name,
+                artist: 'Unknown Artist',
+                file: URL.createObjectURL(file)
+            };
+            this.tracks.push(track);
+        });
+        this.updatePlaylist();
+        console.log(`${files.length} track(s) uploaded.`);
     },
 
     updatePlaylist() {
