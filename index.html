@@ -11,7 +11,6 @@
     <div class="container">
         <header>
             <h1>Melodify</h1>
-            <button id="theme-switcher"><i class="fas fa-moon"></i></button>
         </header>
         <main>
             <div id="player">
@@ -26,19 +25,19 @@
                     <button id="prev"><i class="fas fa-step-backward"></i></button>
                     <button id="play-pause"><i class="fas fa-play"></i></button>
                     <button id="next"><i class="fas fa-step-forward"></i></button>
-                    <button id="shuffle"><i class="fas fa-random"></i></button>
-                    <button id="repeat"><i class="fas fa-repeat"></i></button>
-                    <button id="mute"><i class="fas fa-volume-up"></i></button>
+                    <button id="shuffle" class="eq-btn"><i class="fas fa-random"></i></button>
+                    <button id="repeat" class="eq-btn"><i class="fas fa-redo"></i></button>
+                    <button id="mute" class="eq-btn"><i class="fas fa-volume-mute"></i></button>
                 </div>
                 <div id="progress-container">
                     <div id="progress-bar">
                         <div id="progress"></div>
+                        <div id="duration-tooltip"></div>
                     </div>
                     <div id="time-info">
                         <span id="current-time">0:00</span>
                         <span id="total-time">0:00</span>
                     </div>
-                    <div id="duration-tooltip">0:00</div>
                 </div>
                 <div id="volume-control">
                     <i class="fas fa-volume-down"></i>
@@ -46,43 +45,40 @@
                     <i class="fas fa-volume-up"></i>
                     <span id="volume-level">100%</span>
                 </div>
-                <div id="speed-control">
+                <div id="playback-speed">
                     <label for="speed-slider">Speed:</label>
                     <input type="range" id="speed-slider" min="0.5" max="2" step="0.1" value="1">
                     <span id="speed-value">1x</span>
                 </div>
-                <div id="equalizer">
-                    <h3>Equalizer</h3>
-                    <button class="eq-btn" data-mode="normal">Normal</button>
-                    <button class="eq-btn" data-mode="bass">Bass</button>
-                    <button class="eq-btn" data-mode="treble">Treble</button>
-                </div>
+                <div id="theme-switcher" class="eq-btn"><i class="fas fa-moon"></i></div>
             </div>
             <div id="playlist">
                 <h3>Playlist</h3>
-                <input type="text" id="search" placeholder="Search tracks...">
                 <ul id="track-list">
                     <!-- Tracks will be dynamically added here -->
                 </ul>
-                <button id="create-playlist">Create Playlist</button>
-                <div id="playlists">
-                    <!-- Playlists will be dynamically added here -->
+                <input type="file" id="file-upload" multiple>
+                <button id="upload-btn" class="eq-btn">Upload Tracks</button>
+                <div id="recent-tracks">
+                    <h3>Recent Tracks</h3>
+                    <ul id="recent-list">
+                        <!-- Recent tracks will be dynamically added here -->
+                    </ul>
                 </div>
-            </div>
-            <div id="recent-tracks">
-                <h3>Recent Tracks</h3>
-                <ul id="recent-list">
-                    <!-- Recent tracks will be dynamically added here -->
-                </ul>
+                <div id="playlists">
+                    <h3>Playlists</h3>
+                    <div id="playlist-container">
+                        <!-- Playlists will be dynamically added here -->
+                    </div>
+                    <button id="create-playlist" class="eq-btn">Create Playlist</button>
+                </div>
             </div>
         </main>
         <footer>
             <p>&copy; 2024 Melodify. All rights reserved.</p>
         </footer>
+        <div class="notification"></div>
     </div>
-    <input type="file" id="file-upload" multiple style="display: none;">
-    <button id="upload-btn">Upload Tracks</button>
-    <div class="notification"></div>
     <script src="script.js"></script>
 </body>
 </html>
