@@ -20,6 +20,7 @@ const MusicPlayer = {
         this.updateRecentTracks();
         this.setupVolumeControl();
         this.setupSpeedControl();
+        this.updatePlaylists();
     },
 
     cacheDom() {
@@ -66,7 +67,6 @@ const MusicPlayer = {
         this.audio.load();
         this.updateRecentTracks();
         this.showNotification('Loaded track: ' + track.title);
-        console.log(`Loading track: ${track.file}`);
     },
 
     togglePlayPause() {
@@ -187,6 +187,10 @@ const MusicPlayer = {
         const minutes = Math.floor(seconds / 60);
         const secs = Math.floor(seconds % 60);
         return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
+    },
+
+    updatePlaylists() {
+        // Logic to manage and update playlists can be added here
     }
 };
 
