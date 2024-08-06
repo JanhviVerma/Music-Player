@@ -11,6 +11,7 @@
     <div class="container">
         <header>
             <h1>Melodify</h1>
+            <button id="theme-switcher"><i class="fas fa-moon"></i></button>
         </header>
         <main>
             <div id="player">
@@ -26,8 +27,8 @@
                     <button id="play-pause"><i class="fas fa-play"></i></button>
                     <button id="next"><i class="fas fa-step-forward"></i></button>
                     <button id="shuffle"><i class="fas fa-random"></i></button>
-                    <button id="repeat"><i class="fas fa-redo"></i></button>
-                    <button id="mute"><i class="fas fa-volume-mute"></i></button>
+                    <button id="repeat"><i class="fas fa-repeat"></i></button>
+                    <button id="mute"><i class="fas fa-volume-up"></i></button>
                 </div>
                 <div id="progress-container">
                     <div id="progress-bar">
@@ -43,23 +44,27 @@
                     <input type="range" id="volume-slider" min="0" max="100" value="100">
                     <i class="fas fa-volume-up"></i>
                 </div>
+                <div id="speed-control">
+                    <label for="speed-slider">Speed:</label>
+                    <input type="range" id="speed-slider" min="0.5" max="2" step="0.1" value="1">
+                    <span id="speed-value">1x</span>
+                </div>
             </div>
             <div id="playlist">
                 <h3>Playlist</h3>
+                <input type="text" id="search" placeholder="Search tracks...">
                 <ul id="track-list">
                     <!-- Tracks will be dynamically added here -->
                 </ul>
-            </div>
-            <div id="upload-section">
-                <h3>Upload Your Tracks</h3>
-                <input type="file" id="file-upload" accept="audio/*" multiple>
-                <button id="upload-btn">Upload</button>
             </div>
         </main>
         <footer>
             <p>&copy; 2024 Melodify. All rights reserved.</p>
         </footer>
     </div>
+    <input type="file" id="file-upload" multiple style="display: none;">
+    <button id="upload-btn">Upload Tracks</button>
+    <div class="notification"></div>
     <script src="script.js"></script>
 </body>
 </html>

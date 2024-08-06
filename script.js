@@ -5,12 +5,13 @@ const MusicPlayer = {
     isShuffle: false,
     isRepeat: false,
     isMuted: false,
+    isDarkMode: false,
+    audio: new Audio(),
     tracks: [
         { title: "Sample Track 1", artist: "Artist 1", file: "track1.mp3" },
         { title: "Sample Track 2", artist: "Artist 2", file: "track2.mp3" },
         { title: "Sample Track 3", artist: "Artist 3", file: "track3.mp3" }
     ],
-    audio: new Audio(),
 
     init() {
         this.cacheDom();
@@ -28,6 +29,7 @@ const MusicPlayer = {
         this.shuffleBtn = document.getElementById('shuffle');
         this.repeatBtn = document.getElementById('repeat');
         this.muteBtn = document.getElementById('mute');
+        this.themeSwitcher = document.getElementById('theme-switcher');
         this.trackTitle = document.getElementById('track-title');
         this.artistName = document.getElementById('artist');
         this.progressBar = document.getElementById('progress');
@@ -38,6 +40,9 @@ const MusicPlayer = {
         this.fileUpload = document.getElementById('file-upload');
         this.uploadBtn = document.getElementById('upload-btn');
         this.notification = document.querySelector('.notification');
+        this.searchInput = document.getElementById('search');
+        this.speedSlider = document.getElementById('speed-slider');
+        this.speedValue = document.getElementById('speed-value');
     },
 
     bindEvents() {
@@ -49,8 +54,11 @@ const MusicPlayer = {
         this.muteBtn.addEventListener('click', () => this.toggleMute());
         this.volumeSlider.addEventListener('input', (e) => this.setVolume(e.target.value));
         this.uploadBtn.addEventListener('click', () => this.uploadTracks());
+        this.themeSwitcher.addEventListener('click', () => this.toggleTheme());
         this.audio.addEventListener('ended', () => this.handleTrackEnd());
         this.audio.addEventListener('timeupdate', () => this.updateProgress());
+        this.searchInput.addEventListener('input', () => this.filterTracks());
+        this.speedSlider.addEventListener('input', () => this.setPlaybackSpeed());
     },
 
     loadTrack() {
@@ -120,11 +128,25 @@ const MusicPlayer = {
         console.log(`Mute is ${this.isMuted ? 'ON' : 'OFF'}`);
     },
 
+    toggleTheme() {
+        this.isDarkMode = !this.isDarkMode;
+        document.body.classList.toggle('dark-mode', this.isDarkMode);
+        this.themeSwitcher.innerHTML = this.isDarkMode ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        console.log(`Theme is ${this.isDarkMode ? 'Dark' : 'Light'}`);
+    },
+
     setVolume(volume) {
         this.audio.volume = volume / 100;
         if (!this.isMuted) {
             console.log(`Volume set to ${volume}`);
         }
+    },
+
+    setPlaybackSpeed() {
+        const speed = this.speedSlider.value;
+        this.audio.playbackRate = speed;
+        this.speedValue.textContent = `${speed}x`;
+        console.log(`Playback speed set to ${speed}x`);
     },
 
     uploadTracks() {
@@ -175,6 +197,14 @@ const MusicPlayer = {
         } else {
             this.playNextTrack();
         }
+    },
+
+    filterTracks() {
+        const query = this.searchInput.value.toLowerCase();
+        Array.from(this.trackList.children).forEach(li => {
+            const text = li.textContent.toLowerCase();
+            li.style.display = text.includes(query) ? '' : 'none';
+        });
     },
 
     showNotification(message) {
