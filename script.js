@@ -4,6 +4,7 @@ const MusicPlayer = {
     isPlaying: false,
     isShuffle: false,
     isRepeat: false,
+    isMuted: false,
     tracks: [
         { title: "Sample Track 1", artist: "Artist 1", file: "track1.mp3" },
         { title: "Sample Track 2", artist: "Artist 2", file: "track2.mp3" },
@@ -24,11 +25,13 @@ const MusicPlayer = {
         this.nextBtn = document.getElementById('next');
         this.shuffleBtn = document.getElementById('shuffle');
         this.repeatBtn = document.getElementById('repeat');
+        this.muteBtn = document.getElementById('mute');
         this.trackTitle = document.getElementById('track-title');
         this.artistName = document.getElementById('artist');
         this.progressBar = document.getElementById('progress');
         this.currentTimeElement = document.getElementById('current-time');
         this.totalTimeElement = document.getElementById('total-time');
+        this.volumeSlider = document.getElementById('volume-slider');
         this.trackList = document.getElementById('track-list');
     },
 
@@ -38,6 +41,8 @@ const MusicPlayer = {
         this.nextBtn.addEventListener('click', () => this.playNextTrack());
         this.shuffleBtn.addEventListener('click', () => this.toggleShuffle());
         this.repeatBtn.addEventListener('click', () => this.toggleRepeat());
+        this.muteBtn.addEventListener('click', () => this.toggleMute());
+        this.volumeSlider.addEventListener('input', (e) => this.setVolume(e.target.value));
         // More event listeners will be added in future commits
     },
 
@@ -86,6 +91,19 @@ const MusicPlayer = {
         this.isRepeat = !this.isRepeat;
         this.repeatBtn.classList.toggle('active', this.isRepeat);
         console.log(`Repeat is ${this.isRepeat ? 'ON' : 'OFF'}`);
+    },
+
+    toggleMute() {
+        this.isMuted = !this.isMuted;
+        this.muteBtn.classList.toggle('active', this.isMuted);
+        this.setVolume(this.isMuted ? 0 : this.volumeSlider.value);
+        console.log(`Mute is ${this.isMuted ? 'ON' : 'OFF'}`);
+    },
+
+    setVolume(volume) {
+        if (!this.isMuted) {
+            console.log(`Volume set to ${volume}`);
+        }
     },
 
     updatePlaylist() {
