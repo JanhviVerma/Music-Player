@@ -2,24 +2,24 @@
 const MusicPlayer = {
     currentTrack: 0,
     isPlaying: false,
-    isRepeat: false,
-    isShuffle: false,
-    isMuted: false,
-    playbackSpeed: 1,
     tracks: [
         { title: "Sample Track 1", artist: "Artist 1", file: "track1.mp3" },
         { title: "Sample Track 2", artist: "Artist 2", file: "track2.mp3" },
         { title: "Sample Track 3", artist: "Artist 3", file: "track3.mp3" }
     ],
     playlists: {},
+    currentPlaylist: 'default',
     recentTracks: [],
-    
+    audio: new Audio(),
+
     init() {
         this.cacheDom();
         this.bindEvents();
         this.loadTrack();
         this.updatePlaylist();
         this.updateRecentTracks();
+        this.setupVolumeControl();
+        this.setupSpeedControl();
     },
 
     cacheDom() {
@@ -39,11 +39,9 @@ const MusicPlayer = {
         this.themeSwitcher = document.getElementById('theme-switcher');
         this.trackList = document.getElementById('track-list');
         this.recentList = document.getElementById('recent-list');
-        this.playlistsContainer = document.getElementById('playlist-container');
-        this.createPlaylistBtn = document.getElementById('create-playlist');
         this.uploadBtn = document.getElementById('upload-btn');
         this.fileUpload = document.getElementById('file-upload');
-        this.notification = document.querySelector('.notification');
+        this.notification = document.getElementById('notification');
     },
 
     bindEvents() {
@@ -51,138 +49,52 @@ const MusicPlayer = {
         this.prevBtn.addEventListener('click', () => this.playPrevTrack());
         this.nextBtn.addEventListener('click', () => this.playNextTrack());
         this.volumeSlider.addEventListener('input', () => this.adjustVolume());
-        this.speedSlider.addEventListener('input', () => this.adjustPlaybackSpeed());
+        this.speedSlider.addEventListener('input', () => this.adjustSpeed());
         this.themeSwitcher.addEventListener('click', () => this.toggleTheme());
         this.uploadBtn.addEventListener('click', () => this.uploadTracks());
-        this.createPlaylistBtn.addEventListener('click', () => this.createPlaylist());
-        this.progressBar.addEventListener('mousedown', (e) => this.showTooltip(e));
-        this.progressBar.addEventListener('mousemove', (e) => this.showTooltip(e));
-        this.progressBar.addEventListener('mouseup', () => this.hideTooltip());
+        this.fileUpload.addEventListener('change', (e) => this.handleFileSelect(e));
         this.progressBar.addEventListener('click', (e) => this.seekTrack(e));
+        this.audio.addEventListener('timeupdate', () => this.updateProgress());
+        this.audio.addEventListener('ended', () => this.playNextTrack());
     },
 
     loadTrack() {
         const track = this.tracks[this.currentTrack];
         this.trackTitle.textContent = track.title;
         this.artistName.textContent = track.artist;
-        if (this.audio) {
-            this.audio.pause();
-            this.audio.src = track.file;
-            this.audio.load();
-        } else {
-            this.audio = new Audio(track.file);
-            this.audio.addEventListener('ended', () => this.handleTrackEnd());
-            this.audio.addEventListener('timeupdate', () => this.updateProgress());
-        }
-        this.totalTimeElement.textContent = this.formatTime(this.audio.duration);
+        this.audio.src = track.file;
+        this.audio.load();
+        this.updateRecentTracks();
+        console.log(`Loading track: ${track.file}`);
     },
 
     togglePlayPause() {
+        this.isPlaying = !this.isPlaying;
         if (this.isPlaying) {
-            this.audio.pause();
-            this.playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
-        } else {
             this.audio.play();
             this.playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+            this.showNotification('Playing track');
+        } else {
+            this.audio.pause();
+            this.playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+            this.showNotification('Paused track');
         }
-        this.isPlaying = !this.isPlaying;
     },
 
     playPrevTrack() {
         this.currentTrack = (this.currentTrack - 1 + this.tracks.length) % this.tracks.length;
         this.loadTrack();
-        this.audio.play();
+        if (this.isPlaying) {
+            this.audio.play();
+        }
     },
 
     playNextTrack() {
         this.currentTrack = (this.currentTrack + 1) % this.tracks.length;
         this.loadTrack();
-        this.audio.play();
-    },
-
-    adjustVolume() {
-        const volume = this.volumeSlider.value / 100;
-        this.audio.volume = volume;
-        this.volumeLevel.textContent = `${Math.round(volume * 100)}%`;
-        this.isMuted = volume === 0;
-        this.updateVolumeIcon();
-    },
-
-    updateVolumeIcon() {
-        const icon = this.isMuted ? 'fas fa-volume-mute' : 'fas fa-volume-up';
-        document.getElementById('mute').innerHTML = `<i class="${icon}"></i>`;
-    },
-
-    adjustPlaybackSpeed() {
-        this.playbackSpeed = this.speedSlider.value;
-        this.speedValue.textContent = `${this.playbackSpeed}x`;
-        this.audio.playbackRate = this.playbackSpeed;
-    },
-
-    toggleTheme() {
-        document.body.classList.toggle('dark-theme');
-    },
-
-    showTooltip(e) {
-        const rect = this.progressBar.getBoundingClientRect();
-        const offsetX = e.clientX - rect.left;
-        const duration = this.audio.duration;
-        const tooltip = document.getElementById('duration-tooltip');
-        tooltip.textContent = this.formatTime((offsetX / rect.width) * duration);
-        tooltip.style.left = `${offsetX}px`;
-        tooltip.style.display = 'block';
-    },
-
-    hideTooltip() {
-        document.getElementById('duration-tooltip').style.display = 'none';
-    },
-
-    seekTrack(e) {
-        const rect = this.progressBar.getBoundingClientRect();
-        const offsetX = e.clientX - rect.left;
-        const duration = this.audio.duration;
-        const newTime = (offsetX / rect.width) * duration;
-        this.audio.currentTime = newTime;
-    },
-
-    handleTrackEnd() {
-        if (this.isRepeat) {
+        if (this.isPlaying) {
             this.audio.play();
-        } else if (this.isShuffle) {
-            this.currentTrack = Math.floor(Math.random() * this.tracks.length);
-            this.loadTrack();
-            this.audio.play();
-        } else {
-            this.playNextTrack();
         }
-    },
-
-    updateProgress() {
-        const progress = (this.audio.currentTime / this.audio.duration) * 100;
-        this.progressBar.style.width = `${progress}%`;
-        this.currentTimeElement.textContent = this.formatTime(this.audio.currentTime);
-    },
-
-    filterTracks() {
-        const searchTerm = this.searchInput.value.toLowerCase();
-        Array.from(this.trackList.children).forEach(li => {
-            const text = li.textContent.toLowerCase();
-            li.style.display = text.includes(searchTerm) ? 'block' : 'none';
-        });
-    },
-
-    uploadTracks() {
-        const files = this.fileUpload.files;
-        Array.from(files).forEach(file => {
-            const track = {
-                title: file.name.split('.')[0],
-                artist: 'Unknown',
-                file: URL.createObjectURL(file)
-            };
-            this.tracks.push(track);
-            this.updatePlaylist();
-            this.showNotification(`Uploaded: ${file.name}`);
-        });
     },
 
     updatePlaylist() {
@@ -205,33 +117,76 @@ const MusicPlayer = {
         this.recentList.innerHTML = '';
         this.recentTracks.forEach(track => {
             const li = document.createElement('li');
-            li.textContent = `${track.title} - ${track.artist}`;
+            li.textContent = track.title;
             this.recentList.appendChild(li);
         });
     },
 
-    createPlaylist() {
-        const name = prompt('Enter playlist name:');
-        if (name) {
-            const playlist = document.createElement('div');
-            playlist.classList.add('playlist');
-            playlist.innerHTML = `<h4>${name}</h4><ul></ul>`;
-            this.playlists[name] = [];
-            this.playlistsContainer.appendChild(playlist);
-            console.log(`Created playlist: ${name}`);
+    setupVolumeControl() {
+        this.volumeSlider.addEventListener('input', () => {
+            this.audio.volume = this.volumeSlider.value / 100;
+            this.volumeLevel.textContent = `${Math.round(this.audio.volume * 100)}%`;
+        });
+    },
+
+    setupSpeedControl() {
+        this.speedSlider.addEventListener('input', () => {
+            this.audio.playbackRate = parseFloat(this.speedSlider.value);
+            this.speedValue.textContent = `${this.audio.playbackRate}x`;
+        });
+    },
+
+    toggleTheme() {
+        document.body.classList.toggle('dark-theme');
+    },
+
+    showNotification(message, type = 'success') {
+        this.notification.textContent = message;
+        this.notification.className = `notification ${type}`;
+        this.notification.style.display = 'block';
+        setTimeout(() => {
+            this.notification.style.display = 'none';
+        }, 3000);
+    },
+
+    uploadTracks() {
+        if (this.fileUpload.files.length > 0) {
+            Array.from(this.fileUpload.files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const track = { title: file.name, artist: 'Unknown', file: e.target.result };
+                    this.tracks.push(track);
+                    this.updatePlaylist();
+                    this.showNotification('Track uploaded successfully');
+                };
+                reader.readAsDataURL(file);
+            });
         }
     },
 
-    showNotification(message) {
-        this.notification.textContent = message;
-        this.notification.style.display = 'block';
-        setTimeout(() => this.notification.style.display = 'none', 3000);
+    handleFileSelect(event) {
+        // Additional functionality to handle file selection if needed
+    },
+
+    seekTrack(event) {
+        const progressBarWidth = this.progressBar.clientWidth;
+        const clickX = event.offsetX;
+        const duration = this.audio.duration;
+        this.audio.currentTime = (clickX / progressBarWidth) * duration;
+    },
+
+    updateProgress() {
+        const progressPercent = (this.audio.currentTime / this.audio.duration) * 100;
+        this.progressBar.style.width = `${progressPercent}%`;
+        this.currentTimeElement.textContent = this.formatTime(this.audio.currentTime);
+        this.totalTimeElement.textContent = this.formatTime(this.audio.duration);
+        document.getElementById('duration-tooltip').textContent = this.formatTime(this.audio.currentTime);
     },
 
     formatTime(seconds) {
-        const mins = Math.floor(seconds / 60);
+        const minutes = Math.floor(seconds / 60);
         const secs = Math.floor(seconds % 60);
-        return `${mins}:${String(secs).padStart(2, '0')}`;
+        return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
     }
 };
 
