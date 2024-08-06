@@ -2,6 +2,8 @@
 const MusicPlayer = {
     currentTrack: 0,
     isPlaying: false,
+    isShuffle: false,
+    isRepeat: false,
     tracks: [
         { title: "Sample Track 1", artist: "Artist 1", file: "track1.mp3" },
         { title: "Sample Track 2", artist: "Artist 2", file: "track2.mp3" },
@@ -20,6 +22,8 @@ const MusicPlayer = {
         this.playPauseBtn = document.getElementById('play-pause');
         this.prevBtn = document.getElementById('prev');
         this.nextBtn = document.getElementById('next');
+        this.shuffleBtn = document.getElementById('shuffle');
+        this.repeatBtn = document.getElementById('repeat');
         this.trackTitle = document.getElementById('track-title');
         this.artistName = document.getElementById('artist');
         this.progressBar = document.getElementById('progress');
@@ -32,6 +36,8 @@ const MusicPlayer = {
         this.playPauseBtn.addEventListener('click', () => this.togglePlayPause());
         this.prevBtn.addEventListener('click', () => this.playPrevTrack());
         this.nextBtn.addEventListener('click', () => this.playNextTrack());
+        this.shuffleBtn.addEventListener('click', () => this.toggleShuffle());
+        this.repeatBtn.addEventListener('click', () => this.toggleRepeat());
         // More event listeners will be added in future commits
     },
 
@@ -46,10 +52,10 @@ const MusicPlayer = {
     togglePlayPause() {
         this.isPlaying = !this.isPlaying;
         if (this.isPlaying) {
-            this.playPauseBtn.textContent = 'Pause';
+            this.playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
             console.log('Playing track');
         } else {
-            this.playPauseBtn.textContent = 'Play';
+            this.playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
             console.log('Pausing track');
         }
     },
@@ -68,6 +74,18 @@ const MusicPlayer = {
         if (this.isPlaying) {
             console.log('Playing next track');
         }
+    },
+
+    toggleShuffle() {
+        this.isShuffle = !this.isShuffle;
+        this.shuffleBtn.classList.toggle('active', this.isShuffle);
+        console.log(`Shuffle is ${this.isShuffle ? 'ON' : 'OFF'}`);
+    },
+
+    toggleRepeat() {
+        this.isRepeat = !this.isRepeat;
+        this.repeatBtn.classList.toggle('active', this.isRepeat);
+        console.log(`Repeat is ${this.isRepeat ? 'ON' : 'OFF'}`);
     },
 
     updatePlaylist() {
