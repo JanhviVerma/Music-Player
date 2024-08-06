@@ -1,4 +1,3 @@
-// Music Player Object
 const MusicPlayer = {
     currentTrack: 0,
     isPlaying: false,
@@ -7,7 +6,6 @@ const MusicPlayer = {
         { title: "Sample Track 2", artist: "Artist 2", file: "track2.mp3" },
         { title: "Sample Track 3", artist: "Artist 3", file: "track3.mp3" }
     ],
-    Playlist: 'default',
     recentTracks: [],
     audio: new Audio(),
     isShuffle: false,
@@ -21,7 +19,6 @@ const MusicPlayer = {
         this.updateRecentTracks();
         this.setupVolumeControl();
         this.setupSpeedControl();
-        this.updatePlaylists();
     },
 
     cacheDom() {
@@ -46,6 +43,7 @@ const MusicPlayer = {
         this.uploadBtn = document.getElementById('upload-btn');
         this.fileUpload = document.getElementById('file-upload');
         this.notification = document.getElementById('notification');
+        this.albumArt = document.querySelector('#album-art img');
     },
 
     bindEvents() {
@@ -59,7 +57,7 @@ const MusicPlayer = {
         this.repeatToggle.addEventListener('click', () => this.toggleRepeat());
         this.uploadBtn.addEventListener('click', () => this.uploadTracks());
         this.fileUpload.addEventListener('change', (e) => this.handleFileSelect(e));
-        this.progressBar.addEventListener('click', (e) => this.seekTrack(e));
+        this.progressBar.parentElement.addEventListener('click', (e) => this.seekTrack(e));
         this.audio.addEventListener('timeupdate', () => this.updateProgress());
         this.audio.addEventListener('ended', () => this.handleTrackEnd());
     },
@@ -71,7 +69,8 @@ const MusicPlayer = {
         this.audio.src = track.file;
         this.audio.load();
         this.updateRecentTracks();
-        this.showNotification('Loaded track: ' + track.title);
+        this.showNotification(`Now playing: ${track.title} by ${track.artist}`);
+        this.albumArt.src = `album-art-${this.currentTrack + 1}.jpg`;
     },
 
     togglePlayPause() {
@@ -120,58 +119,74 @@ const MusicPlayer = {
     },
 
     updateRecentTracks() {
+        if (!this.recentTracks.includes(this.currentTrack)) {
+            this.recentTracks.unshift(this.currentTrack);
+            if (this.recentTracks.length > 5) {
+                this.recentTracks.pop();
+            }
+        }
         this.recentList.innerHTML = '';
-        this.recentTracks.forEach(track => {
+        this.recentTracks.forEach(trackIndex => {
+            const track = this.tracks[trackIndex];
             const li = document.createElement('li');
-            li.textContent = track.title;
+            li.textContent = `${track.title} - ${track.artist}`;
+            li.addEventListener('click', () => {
+                this.currentTrack = trackIndex;
+                this.loadTrack();
+                if (this.isPlaying) {
+                    this.audio.play();
+                }
+            });
             this.recentList.appendChild(li);
         });
     },
 
-    setupVolumeControl() {
-        this.volumeSlider.addEventListener('input', () => {
-            this.audio.volume = this.volumeSlider.value / 100;
-            this.volumeLevel.textContent = `${Math.round(this.audio.volume * 100)}%`;
-        });
+    adjustVolume() {
+        this.audio.volume = this.volumeSlider.value / 100;
+        this.volumeLevel.textContent = `${Math.round(this.audio.volume * 100)}%`;
     },
 
-    setupSpeedControl() {
-        this.speedSlider.addEventListener('input', () => {
-            this.audio.playbackRate = parseFloat(this.speedSlider.value);
-            this.speedValue.textContent = `${this.audio.playbackRate}x`;
-        });
+    adjustSpeed() {
+        this.audio.playbackRate = parseFloat(this.speedSlider.value);
+        this.speedValue.textContent = `${this.audio.playbackRate.toFixed(1)}x`;
     },
 
     toggleTheme() {
         document.body.classList.toggle('dark-theme');
+        const isDarkTheme = document.body.classList.contains('dark-theme');
+        this.themeSwitcher.innerHTML = isDarkTheme ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        this.showNotification(isDarkTheme ? 'Dark theme enabled' : 'Light theme enabled');
     },
 
     showNotification(message, type = 'success') {
         this.notification.textContent = message;
         this.notification.className = `notification ${type}`;
-        this.notification.style.display = 'block';
+        this.notification.classList.add('show');
         setTimeout(() => {
-            this.notification.style.display = 'none';
+            this.notification.classList.remove('show');
         }, 3000);
     },
 
     uploadTracks() {
-        if (this.fileUpload.files.length > 0) {
-            Array.from(this.fileUpload.files).forEach(file => {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    const track = { title: file.name, artist: 'Unknown', file: e.target.result };
-                    this.tracks.push(track);
-                    this.updatePlaylist();
-                    this.showNotification('Track uploaded successfully');
-                };
-                reader.readAsDataURL(file);
-            });
-        }
+        this.fileUpload.click();
     },
 
     handleFileSelect(event) {
-        // Handle file selection logic here if needed
+        const files = Array.from(event.target.files);
+        files.forEach(file => {
+            if (file.type.startsWith('audio/')) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const track = { title: file.name.replace(/\.[^/.]+$/, ""), artist: 'Unknown', file: e.target.result };
+                    this.tracks.push(track);
+                    this.updatePlaylist();
+                    this.showNotification(`Track "${track.title}" uploaded successfully`);
+                };
+                reader.readAsDataURL(file);
+            } else {
+                this.showNotification(`File "${file.name}" is not an audio file`, 'error');
+            }
+        });
     },
 
     seekTrack(event) {
@@ -190,22 +205,20 @@ const MusicPlayer = {
 
     formatTime(seconds) {
         const minutes = Math.floor(seconds / 60);
-        const secs = Math.floor(seconds % 60);
-        return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
-    },
-
-    updatePlaylists() {
-        // Logic to manage and update playlists can be added here
+        const remainingSeconds = Math.floor(seconds % 60);
+        return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
     },
 
     toggleShuffle() {
         this.isShuffle = !this.isShuffle;
-        this.shuffleToggle.textContent = this.isShuffle ? 'Shuffle On' : 'Shuffle Off';
+        this.shuffleToggle.classList.toggle('active');
+        this.showNotification(this.isShuffle ? 'Shuffle enabled' : 'Shuffle disabled');
     },
 
     toggleRepeat() {
         this.isRepeat = !this.isRepeat;
-        this.repeatToggle.textContent = this.isRepeat ? 'Repeat On' : 'Repeat Off';
+        this.repeatToggle.classList.toggle('active');
+        this.showNotification(this.isRepeat ? 'Repeat enabled' : 'Repeat disabled');
     },
 
     handleTrackEnd() {
@@ -213,7 +226,11 @@ const MusicPlayer = {
             this.audio.currentTime = 0;
             this.audio.play();
         } else if (this.isShuffle) {
-            this.currentTrack = Math.floor(Math.random() * this.tracks.length);
+            let newTrack;
+            do {
+                newTrack = Math.floor(Math.random() * this.tracks.length);
+            } while (newTrack === this.currentTrack && this.tracks.length > 1);
+            this.currentTrack = newTrack;
             this.loadTrack();
             this.audio.play();
         } else {
@@ -222,5 +239,4 @@ const MusicPlayer = {
     }
 };
 
-// Initialize the Music Player
 document.addEventListener('DOMContentLoaded', () => MusicPlayer.init());
