@@ -116,7 +116,7 @@ button:active {
     color: #666;
 }
 
-#volume-control, #speed-control, #theme-control {
+#volume-control, #speed-control, #theme-control, #shuffle-control, #repeat-control {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -137,7 +137,7 @@ button:active {
     margin-left: 10px;
 }
 
-#theme-switcher {
+#theme-switcher, #shuffle-toggle, #repeat-toggle {
     padding: 10px 20px;
     background-color: #1db954;
     color: #fff;
@@ -147,7 +147,7 @@ button:active {
     transition: background-color 0.3s ease;
 }
 
-#theme-switcher:hover {
+#theme-switcher:hover, #shuffle-toggle:hover, #repeat-toggle:hover {
     background-color: #1ed760;
 }
 

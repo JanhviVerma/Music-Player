@@ -7,10 +7,11 @@ const MusicPlayer = {
         { title: "Sample Track 2", artist: "Artist 2", file: "track2.mp3" },
         { title: "Sample Track 3", artist: "Artist 3", file: "track3.mp3" }
     ],
-    playlists: {},
-    currentPlaylist: 'default',
+    Playlist: 'default',
     recentTracks: [],
     audio: new Audio(),
+    isShuffle: false,
+    isRepeat: false,
 
     init() {
         this.cacheDom();
@@ -38,6 +39,8 @@ const MusicPlayer = {
         this.speedSlider = document.getElementById('speed-slider');
         this.speedValue = document.getElementById('speed-value');
         this.themeSwitcher = document.getElementById('theme-switcher');
+        this.shuffleToggle = document.getElementById('shuffle-toggle');
+        this.repeatToggle = document.getElementById('repeat-toggle');
         this.trackList = document.getElementById('track-list');
         this.recentList = document.getElementById('recent-list');
         this.uploadBtn = document.getElementById('upload-btn');
@@ -52,11 +55,13 @@ const MusicPlayer = {
         this.volumeSlider.addEventListener('input', () => this.adjustVolume());
         this.speedSlider.addEventListener('input', () => this.adjustSpeed());
         this.themeSwitcher.addEventListener('click', () => this.toggleTheme());
+        this.shuffleToggle.addEventListener('click', () => this.toggleShuffle());
+        this.repeatToggle.addEventListener('click', () => this.toggleRepeat());
         this.uploadBtn.addEventListener('click', () => this.uploadTracks());
         this.fileUpload.addEventListener('change', (e) => this.handleFileSelect(e));
         this.progressBar.addEventListener('click', (e) => this.seekTrack(e));
         this.audio.addEventListener('timeupdate', () => this.updateProgress());
-        this.audio.addEventListener('ended', () => this.playNextTrack());
+        this.audio.addEventListener('ended', () => this.handleTrackEnd());
     },
 
     loadTrack() {
@@ -191,6 +196,29 @@ const MusicPlayer = {
 
     updatePlaylists() {
         // Logic to manage and update playlists can be added here
+    },
+
+    toggleShuffle() {
+        this.isShuffle = !this.isShuffle;
+        this.shuffleToggle.textContent = this.isShuffle ? 'Shuffle On' : 'Shuffle Off';
+    },
+
+    toggleRepeat() {
+        this.isRepeat = !this.isRepeat;
+        this.repeatToggle.textContent = this.isRepeat ? 'Repeat On' : 'Repeat Off';
+    },
+
+    handleTrackEnd() {
+        if (this.isRepeat) {
+            this.audio.currentTime = 0;
+            this.audio.play();
+        } else if (this.isShuffle) {
+            this.currentTrack = Math.floor(Math.random() * this.tracks.length);
+            this.loadTrack();
+            this.audio.play();
+        } else {
+            this.playNextTrack();
+        }
     }
 };
 
