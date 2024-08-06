@@ -65,6 +65,7 @@ const MusicPlayer = {
         this.audio.src = track.file;
         this.audio.load();
         this.updateRecentTracks();
+        this.showNotification('Loaded track: ' + track.title);
         console.log(`Loading track: ${track.file}`);
     },
 
@@ -165,11 +166,11 @@ const MusicPlayer = {
     },
 
     handleFileSelect(event) {
-        // Additional functionality to handle file selection if needed
+        // Handle file selection logic here if needed
     },
 
     seekTrack(event) {
-        const progressBarWidth = this.progressBar.clientWidth;
+        const progressBarWidth = this.progressBar.parentElement.clientWidth;
         const clickX = event.offsetX;
         const duration = this.audio.duration;
         this.audio.currentTime = (clickX / progressBarWidth) * duration;
@@ -180,7 +181,6 @@ const MusicPlayer = {
         this.progressBar.style.width = `${progressPercent}%`;
         this.currentTimeElement.textContent = this.formatTime(this.audio.currentTime);
         this.totalTimeElement.textContent = this.formatTime(this.audio.duration);
-        document.getElementById('duration-tooltip').textContent = this.formatTime(this.audio.currentTime);
     },
 
     formatTime(seconds) {

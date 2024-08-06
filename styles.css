@@ -13,7 +13,7 @@ body {
 }
 
 .container {
-    max-width: 800px;
+    max-width: 900px;
     margin: 0 auto;
     padding: 20px;
 }
@@ -42,8 +42,8 @@ h1 {
 }
 
 #album-art img {
-    width: 250px;
-    height: 250px;
+    width: 300px;
+    height: 300px;
     object-fit: cover;
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
@@ -55,7 +55,7 @@ h1 {
 }
 
 #track-title {
-    font-size: 1.5em;
+    font-size: 1.7em;
     margin-bottom: 5px;
 }
 
@@ -95,10 +95,9 @@ button:active {
 
 #progress-bar {
     background-color: #ddd;
-    height: 6px;
-    border-radius: 3px;
+    height: 8px;
+    border-radius: 4px;
     margin-bottom: 10px;
-    position: relative;
     cursor: pointer;
     overflow: hidden;
 }
@@ -110,63 +109,49 @@ button:active {
     transition: width 0.1s linear;
 }
 
-#duration-tooltip {
-    position: absolute;
-    bottom: 100%;
-    background-color: #333;
-    color: #fff;
-    padding: 5px;
-    border-radius: 3px;
-    font-size: 0.75em;
-    display: none;
-    white-space: nowrap;
-}
-
 #time-info {
     display: flex;
     justify-content: space-between;
-    font-size: 0.9em;
+    font-size: 1em;
     color: #666;
 }
 
-#volume-control {
+#volume-control, #speed-control, #theme-control {
     display: flex;
     align-items: center;
     justify-content: center;
+    margin-bottom: 20px;
 }
 
 #volume-slider {
-    width: 100px;
+    width: 120px;
     margin: 0 10px;
 }
 
-#volume-level {
-    margin-left: 10px;
-}
-
-#speed-control {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-top: 10px;
-}
-
 #speed-slider {
-    margin-left: 10px;
-    width: 100px;
+    width: 120px;
+    margin: 0 10px;
 }
 
 #speed-value {
     margin-left: 10px;
 }
 
-#theme-control {
-    display: flex;
-    justify-content: center;
-    margin-top: 10px;
+#theme-switcher {
+    padding: 10px 20px;
+    background-color: #1db954;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
 }
 
-#playlist-container {
+#theme-switcher:hover {
+    background-color: #1ed760;
+}
+
+#playlist, #recent {
     margin-top: 30px;
     background-color: #fff;
     border-radius: 15px;
@@ -174,44 +159,24 @@ button:active {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-#track-list {
+#track-list, #recent-list {
     list-style-type: none;
+    padding: 0;
 }
 
-#track-list li {
+#track-list li, #recent-list li {
     padding: 10px;
     border-bottom: 1px solid #eee;
     cursor: pointer;
     transition: background-color 0.3s ease;
 }
 
-#track-list li:hover {
+#track-list li:hover, #recent-list li:hover {
     background-color: #f9f9f9;
 }
 
-#track-list li:last-child {
+#track-list li:last-child, #recent-list li:last-child {
     border-bottom: none;
-}
-
-#recent-tracks {
-    margin-top: 30px;
-}
-
-#recent-list {
-    list-style-type: none;
-}
-
-#recent-list li {
-    padding: 10px;
-    border-bottom: 1px solid #eee;
-}
-
-#upload-section {
-    margin-top: 30px;
-}
-
-#upload-btn {
-    margin-top: 10px;
 }
 
 footer {
@@ -222,21 +187,42 @@ footer {
 }
 
 .notification {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background: #1db954;
-    color: #fff;
-    padding: 10px 20px;
+    padding: 10px;
+    margin-top: 20px;
     border-radius: 5px;
-    display: none;
-    z-index: 1000;
+    color: #fff;
+    font-size: 0.9em;
 }
 
 .notification.success {
-    background: #28a745;
+    background-color: #4caf50;
 }
 
 .notification.error {
-    background: #dc3545;
+    background-color: #f44336;
+}
+
+.dark-theme {
+    background-color: #121212;
+    color: #e0e0e0;
+}
+
+.dark-theme #player {
+    background-color: #1e1e1e;
+}
+
+.dark-theme #progress-bar {
+    background-color: #333;
+}
+
+.dark-theme #progress {
+    background-color: #4caf50;
+}
+
+.dark-theme #track-list li, .dark-theme #recent-list li {
+    border-bottom: 1px solid #333;
+}
+
+.dark-theme footer {
+    color: #bbb;
 }
